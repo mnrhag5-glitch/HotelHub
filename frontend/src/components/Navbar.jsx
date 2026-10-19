@@ -34,7 +34,7 @@ export default function Navbar() {
 
     try {
       const response = await fetch(
-        'http://localhost:3000/api/users/logout',
+     'https://hotelhub-alrf.onrender.com/api/users/logout',
         {
           method: 'POST',
           credentials: 'include',
@@ -47,7 +47,7 @@ export default function Navbar() {
 
       setProfileOpen(false)
       navigate('/login', { replace: true })
-      window.location.reload()
+      
     } catch (error) {
       console.error('Logout error:', error)
       setLoggingOut(false)
