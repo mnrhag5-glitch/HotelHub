@@ -14,8 +14,16 @@ const reviewRoutes = require("./routes/review.routes");
 const app = express();
 app.use(helmet());
 
-app.use(cors({origin: "http://localhost:5173", credentials: true
+
+app.use(cors({
+    origin: [
+        "http://localhost:5173",
+        "https://hotelhub-rouge.vercel.app",
+        "https://hotelhub-2pstcotcu-mnrhag5-glitch.vercel.app"
+    ],
+    credentials: true
 }));
+
 
 
 app.use( "/api/payments/webhook",express.raw({ type: "application/json" }));
