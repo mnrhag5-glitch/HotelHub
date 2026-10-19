@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>HotelHub Payment Test</title>
+</head>
+<body>
+
+    <h2>HotelHub Razorpay Test</h2>
+
+    <p>Booking Amount: ₹9000</p>
+
+    <button id="payButton">Pay ₹9000</button>
+
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+    <script>
+        const options = {
+            key: "rzp_test_TkWQqfM9v5PTrp",
+
+            amount: 900000,
+
+            currency: "INR",
+
+            name: "HotelHub",
+
+            description: "Hotel Booking Payment",
+order_id: "order_TnhdKxevbAe3Ml",
+handler: async function (response) {
+    try {
+        const result = await fetch(
+            "http://localhost:3000/api/payments/verify-payment",
+            {
+                method: "POST",
+                credentials: "include",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    bookingId: "6acf2c4a93e16de81c56e49c",
+                    razorpay_payment_id: response.razorpay_payment_id,
+                    razorpay_order_id: response.razorpay_order_id,
+                    razorpay_signature: response.razorpay_signature
+                })
+            }
+        );
+
+        const data = await result.json();
+
+        if (!result.ok) {
+            throw new Error(data.message || "Payment verification failed");
+        }
+
+        alert("Payment verified successfully! Booking confirmed.");
+        console.log(data);
+    } catch (error) {
+        console.error(error);
+        alert("Payment verification failed: " + error.message);
+    }
+},
+            theme: {
+                color: "#3399cc"
+            }
+        };
+
+        const razorpay = new Razorpay(options);
+
+        document
+            .getElementById("payButton")
+            .onclick = function (e) {
+
+                razorpay.open();
+
+                e.preventDefault();
+            };
+    </script>
+
+</body>
+</html>
