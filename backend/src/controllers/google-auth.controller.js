@@ -30,7 +30,8 @@ function googleLogin(req, res) {
     res.cookie("google_oauth_state", state, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
+     sameSite: "none",
+      path: "/",
       maxAge: 10 * 60 * 1000,
     });
 
@@ -128,7 +129,7 @@ async function googleCallback(req, res) {
 res.cookie("token", token, {
   httpOnly: true,
   secure: process.env.NODE_ENV === "production",
-  sameSite: "lax",
+  sameSite: "none",
   path: "/",
   maxAge: 7 * 24 * 60 * 60 * 1000,
 });
