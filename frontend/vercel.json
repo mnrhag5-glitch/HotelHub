@@ -2,15 +2,7 @@
 {
   "rewrites": [
     {
-      "source": "/login",
-      "destination": "/index.html"
-    },
-    {
-      "source": "/hotels/:path*",
-      "destination": "/index.html"
-    },
-    {
-      "source": "/",
+      "source": "/(.*)",
       "destination": "/index.html"
     }
   ]
