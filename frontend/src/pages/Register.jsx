@@ -59,7 +59,7 @@ export default function Register() {
         </div>
       </section>
 
-      <section className="flex min-h-screen items-center justify-center bg-[#fbfaf7] px-6 py-10 sm:px-12">
+<section className="flex min-h-screen items-center justify-center bg-[#fbfaf7] px-6 py-10 text-stone-900 transition-colors dark:bg-stone-950 dark:text-stone-100 sm:px-12">
         <div className="w-full max-w-md">
           <Link to="/" className="mb-10 inline-flex items-center gap-2 text-2xl font-bold">
             <span className="grid h-9 w-9 place-items-center rounded-xl rounded-bl-sm bg-emerald-900 font-serif text-white">H</span>
@@ -67,7 +67,7 @@ export default function Register() {
           </Link>
 
           <p className="text-xs font-bold tracking-[0.2em] text-emerald-800">CREATE YOUR ACCOUNT</p>
-          <h2 className="mt-3 font-serif text-4xl text-stone-900">Your next chapter.</h2>
+          <h2 className="mt-3 font-serif text-4xl text-stone-500">Your next chapter.</h2>
           <p className="mt-3 text-sm leading-6 text-stone-500">
             Join us and find your next favourite place.
           </p>
@@ -77,8 +77,7 @@ export default function Register() {
             onClick={() => {
               window.location.href = `${API_BASE}/api/auth/google`
             }}
-            className="mt-7 flex h-12 w-full items-center justify-center gap-3 rounded-lg border border-stone-300 bg-white text-sm font-semibold hover:bg-stone-50"
-          >
+className="mt-7 flex h-12 w-full items-center justify-center gap-3 rounded-lg border border-stone-300 bg-white text-sm font-semibold text-stone-900 transition hover:bg-stone-50 dark:border-stone-700 dark:bg-stone-900 dark:text-stone-100 dark:hover:bg-stone-800"          >
             <span className="font-bold text-blue-600">G</span>
             Continue with Google
           </button>
@@ -96,7 +95,7 @@ export default function Register() {
               { name: 'phone', label: 'Phone number', placeholder: 'Your phone number', type: 'tel' },
               { name: 'password', label: 'Password', placeholder: 'Create a strong password', type: 'password' },
             ].map((field) => (
-              <label key={field.name} className="block text-sm font-semibold text-stone-700">
+              <label key={field.name} className="block text-sm font-semibold text-stone-700 dark:text-stone-300">
                 {field.label}
                 <input
                   name={field.name}
@@ -107,7 +106,7 @@ export default function Register() {
                   value={form[field.name]}
                   onChange={update}
                   placeholder={field.placeholder}
-                  className="mt-2 h-11 w-full rounded-lg border border-stone-300 bg-white px-4 font-normal outline-none focus:border-emerald-800 focus:ring-2 focus:ring-emerald-800/10"
+               className="mt-2 h-11 w-full rounded-lg border border-stone-300 bg-white px-4 font-normal text-stone-900 placeholder:text-stone-400 outline-none focus:border-emerald-800 focus:ring-2 focus:ring-emerald-800/10 dark:border-stone-700 dark:bg-stone-900 dark:text-stone-100 dark:placeholder:text-stone-500 dark:focus:border-emerald-500"
                 />
               </label>
             ))}
@@ -124,9 +123,9 @@ export default function Register() {
             </button>
           </form>
 
-          <p className="mt-6 text-center text-sm text-stone-500">
+          <p className="mt-6 text-center text-sm text-stone-500 dark:text-stone-400">
             Already have an account?{' '}
-            <Link to="/login" className="font-bold text-emerald-800 hover:underline">Log in</Link>
+            <Link to="/login" className="font-bold text-emerald-800 hover:underline dark:text-emerald-400">Log in</Link>
           </p>
         </div>
       </section>

@@ -52,7 +52,7 @@ export default function Login() {
         </div>
       </section>
 
-      <section className="flex min-h-screen items-center justify-center bg-[#fbfaf7] px-6 py-10 sm:px-12">
+<section className="flex min-h-screen items-center justify-center bg-[#fbfaf7] px-6 py-10 text-stone-900 transition-colors dark:bg-stone-950 dark:text-stone-100 sm:px-12">
         <div className="w-full max-w-md">
           <Link to="/" className="mb-14 inline-flex items-center gap-2 text-2xl font-bold">
             <span className="grid h-9 w-9 place-items-center rounded-xl rounded-bl-sm bg-emerald-900 font-serif text-white">H</span>
@@ -60,18 +60,17 @@ export default function Login() {
           </Link>
 
           <p className="text-xs font-bold tracking-[0.2em] text-emerald-800">WELCOME BACK</p>
-          <h2 className="mt-3 font-serif text-4xl text-stone-900">Good to see you.</h2>
-          <p className="mt-3 text-sm leading-6 text-stone-500">
-            Log in to discover your next favourite stay.
-          </p>
+<h2 className="mt-3 font-serif text-4xl text-stone-900 dark:text-stone-100">Good to see you.</h2>
+        <p className="mt-3 text-sm leading-6 text-stone-500 dark:text-stone-400">
+  Log in to discover your next favourite stay.
+</p>
 
           <button
             type="button"
             onClick={() => {
               window.location.href = `${API_BASE}/api/auth/google`
             }}
-            className="mt-8 flex h-12 w-full items-center justify-center gap-3 rounded-lg border border-stone-300 bg-white text-sm font-semibold hover:bg-stone-50"
-          >
+className="mt-8 flex h-12 w-full items-center justify-center gap-3 rounded-lg border border-stone-300 bg-white text-sm font-semibold text-stone-900 transition hover:bg-stone-50 dark:border-stone-700 dark:bg-stone-900 dark:text-stone-100 dark:hover:bg-stone-800"          >
             <span className="font-bold text-blue-600">G</span>
             Continue with Google
           </button>
@@ -93,8 +92,7 @@ export default function Login() {
                 value={form.email}
                 onChange={update}
                 placeholder="you@example.com"
-                className="mt-2 h-12 w-full rounded-lg border border-stone-300 bg-white px-4 font-normal outline-none focus:border-emerald-800 focus:ring-2 focus:ring-emerald-800/10"
-              />
+className="mt-2 h-12 w-full rounded-lg border border-stone-300 bg-white px-4 text-stone-900 placeholder:text-stone-400 font-normal outline-none focus:border-emerald-800 focus:ring-2 focus:ring-emerald-800/10 dark:border-stone-700 dark:bg-stone-900 dark:text-stone-100 dark:placeholder:text-stone-500 dark:focus:border-emerald-500"              />
             </label>
 
             <label className="block text-sm font-semibold text-stone-700">
@@ -107,7 +105,7 @@ export default function Login() {
                 value={form.password}
                 onChange={update}
                 placeholder="Enter your password"
-                className="mt-2 h-12 w-full rounded-lg border border-stone-300 bg-white px-4 font-normal outline-none focus:border-emerald-800 focus:ring-2 focus:ring-emerald-800/10"
+                className="mt-2 h-12 w-full rounded-lg border border-stone-300 bg-white px-4 text-stone-900 placeholder:text-stone-400 font-normal outline-none focus:border-emerald-800 focus:ring-2 focus:ring-emerald-800/10 dark:border-stone-700 dark:bg-stone-900 dark:text-stone-100 dark:placeholder:text-stone-500 dark:focus:border-emerald-500"
               />
             </label>
 
