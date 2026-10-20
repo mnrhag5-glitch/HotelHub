@@ -15,12 +15,16 @@ const app = express();
 app.use(helmet());
 
 
+
+const allowedOrigins = [
+    "http://localhost:5173",
+    "https://hotelhub-rouge.vercel.app",
+    "https://hotelhub-2pstcotcu-mnrhag5-glitch.vercel.app",
+    "https://hotel-hub-gray.vercel.app"
+];
+
 app.use(cors({
-    origin: [
-        "http://localhost:5173",
-        "https://hotelhub-rouge.vercel.app",
-        "https://hotelhub-2pstcotcu-mnrhag5-glitch.vercel.app"
-    ],
+    origin: allowedOrigins,
     credentials: true
 }));
 

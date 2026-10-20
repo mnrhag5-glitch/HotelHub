@@ -6,6 +6,7 @@ const jwt = require("jsonwebtoken");
 const userModel = require("./src/model/user.model");
 
 const app = require("./src/app");
+app.set("trust proxy", 1);
 const connectDb = require("./src/database/db");
 const { startBookingExpiryJob } = require("./src/services/booking-expiry.service");
 
