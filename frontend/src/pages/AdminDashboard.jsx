@@ -26,7 +26,7 @@ function imageUrlsToText(images) {
 }
 
 const inputClass =
-  "mt-2 block h-12 w-full rounded-lg border border-stone-300 px-3 outline-none focus:border-emerald-800 focus:ring-2 focus:ring-emerald-100";
+  "mt-2 block h-12 w-full rounded-lg border border-stone-300 bg-white px-3 text-stone-900 outline-none placeholder:text-stone-400 focus:border-emerald-800 focus:ring-2 focus:ring-emerald-100 dark:border-stone-600 dark:bg-[#111715] dark:text-stone-100 dark:placeholder:text-stone-500 dark:focus:border-emerald-400 dark:focus:ring-emerald-900";
 
 export default function AdminDashboard() {
   const [unreadChatCount, setUnreadChatCount] = useState(0);
@@ -656,7 +656,7 @@ async function deleteAdminReview(review) {
 
 
   return (
-    <div className="min-h-screen bg-[#fbfaf7]">
+    <div className="min-h-screen bg-[#fbfaf7] text-stone-900 transition-colors duration-200 dark:bg-[#111715] dark:text-stone-100">
       <Navbar />
 
       <main className="mx-auto max-w-5xl px-5 py-10 sm:px-8">
@@ -664,17 +664,17 @@ async function deleteAdminReview(review) {
           HotelHub Administration
         </p>
 
-        <h1 className="mt-3 font-serif text-4xl text-stone-900">
+        <h1 className="mt-3 font-serif text-4xl text-stone-900 dark:text-stone-100">
           Manage Hotels
         </h1>
 
-        <p className="mt-3 text-sm text-stone-600">
+        <p className="mt-3 text-sm text-stone-600 dark:text-stone-400">
           Create and manage your hotel listings.
         </p>
 
         <Link
           to="/admin/live-chat"
-          className="mt-6 flex items-center justify-between gap-4 rounded-2xl border border-stone-200 bg-white p-5 shadow-sm transition hover:border-emerald-300 hover:shadow-md"
+          className="mt-6 flex items-center justify-between gap-4 rounded-2xl border border-stone-200 bg-white p-5 shadow-sm transition hover:border-emerald-300 hover:shadow-md dark:bg-[#1b2420] dark:border-stone-700"
         >
           <span className="flex min-w-0 items-center gap-4">
             <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-800">
@@ -684,7 +684,7 @@ async function deleteAdminReview(review) {
               </svg>
             </span>
             <span className="min-w-0">
-              <span className="flex items-center gap-2 font-semibold text-stone-900">
+              <span className="flex items-center gap-2 font-semibold text-stone-900 dark:text-stone-100">
                 Live Chat
                 {unreadChatCount > 0 && (
                   <span className="relative flex h-3 w-3" aria-label={`${unreadChatCount} unread customer messages`}>
@@ -693,7 +693,7 @@ async function deleteAdminReview(review) {
                   </span>
                 )}
               </span>
-              <span className="mt-1 block text-sm text-stone-600">View and reply to customer messages in real time.</span>
+              <span className="mt-1 block text-sm text-stone-600 dark:text-stone-400">View and reply to customer messages in real time.</span>
             </span>
           </span>
           <span className="shrink-0 text-sm font-semibold text-emerald-800">Open inbox →</span>
@@ -719,9 +719,9 @@ async function deleteAdminReview(review) {
 
         <form
           onSubmit={handleSubmit}
-          className="mt-8 space-y-5 rounded-2xl border border-stone-200 bg-white p-6 shadow-sm sm:p-8"
+          className="mt-8 space-y-5 rounded-2xl border border-stone-200 bg-white p-6 shadow-sm sm:p-8 dark:bg-[#1b2420] dark:border-stone-700"
         >
-          <h2 className="font-serif text-2xl text-stone-900">Add a hotel</h2>
+          <h2 className="font-serif text-2xl text-stone-900 dark:text-stone-100">Add a hotel</h2>
 
           <div className="grid gap-5 sm:grid-cols-2">
             {[
@@ -733,7 +733,7 @@ async function deleteAdminReview(review) {
             ].map((field) => (
               <label
                 key={field.name}
-                className="text-sm font-medium text-stone-700"
+                className="text-sm font-medium text-stone-700 dark:text-stone-300"
               >
                 {field.label}
                 <input
@@ -747,7 +747,7 @@ async function deleteAdminReview(review) {
               </label>
             ))}
 
-            <label className="text-sm font-medium text-stone-700">
+            <label className="text-sm font-medium text-stone-700 dark:text-stone-300">
               Latitude
               <input
                 type="number"
@@ -762,7 +762,7 @@ async function deleteAdminReview(review) {
               />
             </label>
 
-            <label className="text-sm font-medium text-stone-700">
+            <label className="text-sm font-medium text-stone-700 dark:text-stone-300">
               Longitude
               <input
                 type="number"
@@ -777,7 +777,7 @@ async function deleteAdminReview(review) {
               />
             </label>
 
-            <label className="text-sm font-medium text-stone-700 sm:col-span-2">
+            <label className="text-sm font-medium text-stone-700 sm:col-span-2 dark:text-stone-300">
               Hotel Image URLs
               <textarea
                 name="imageUrl"
@@ -786,14 +786,14 @@ async function deleteAdminReview(review) {
                 placeholder={"https://example.com/hotel-front.jpg\nhttps://example.com/hotel-lobby.jpg"}
                 rows={3}
                 maxLength={12000}
-                className="mt-2 block w-full rounded-lg border border-stone-300 p-3 outline-none focus:border-emerald-800 focus:ring-2 focus:ring-emerald-100"
+                className="mt-2 block w-full rounded-lg border border-stone-300 p-3 outline-none focus:border-emerald-800 focus:ring-2 focus:ring-emerald-100 dark:border-stone-600"
               />
-              <span className="mt-1 block text-xs font-normal text-stone-500">
+              <span className="mt-1 block text-xs font-normal text-stone-500 dark:text-stone-400">
                 Add one direct HTTPS image URL per line. These photos are saved to the hotel record.
               </span>
             </label>
 
-            <label className="text-sm font-medium text-stone-700 sm:col-span-2">
+            <label className="text-sm font-medium text-stone-700 sm:col-span-2 dark:text-stone-300">
               Description
               <textarea
                 name="description"
@@ -802,7 +802,7 @@ async function deleteAdminReview(review) {
                 required
                 maxLength={2000}
                 rows={4}
-                className="mt-2 block w-full rounded-lg border border-stone-300 p-3 outline-none focus:border-emerald-800 focus:ring-2 focus:ring-emerald-100"
+                className="mt-2 block w-full rounded-lg border border-stone-300 p-3 outline-none focus:border-emerald-800 focus:ring-2 focus:ring-emerald-100 dark:border-stone-600"
               />
             </label>
           </div>
@@ -818,12 +818,12 @@ async function deleteAdminReview(review) {
 
         <form
           onSubmit={handleRoomSubmit}
-          className="mt-8 space-y-5 rounded-2xl border border-stone-200 bg-white p-6 shadow-sm sm:p-8"
+          className="mt-8 space-y-5 rounded-2xl border border-stone-200 bg-white p-6 shadow-sm sm:p-8 dark:bg-[#1b2420] dark:border-stone-700"
         >
-          <h2 className="font-serif text-2xl text-stone-900">Add a Room</h2>
+          <h2 className="font-serif text-2xl text-stone-900 dark:text-stone-100">Add a Room</h2>
 
           <div className="grid gap-5 sm:grid-cols-2">
-            <label className="text-sm font-medium text-stone-700 sm:col-span-2">
+            <label className="text-sm font-medium text-stone-700 sm:col-span-2 dark:text-stone-300">
               Select Hotel
               <select
                 name="hotelId"
@@ -841,7 +841,7 @@ async function deleteAdminReview(review) {
               </select>
             </label>
 
-            <label className="text-sm font-medium text-stone-700">
+            <label className="text-sm font-medium text-stone-700 dark:text-stone-300">
               Room Name
               <input
                 name="name"
@@ -854,7 +854,7 @@ async function deleteAdminReview(review) {
               />
             </label>
 
-            <label className="text-sm font-medium text-stone-700">
+            <label className="text-sm font-medium text-stone-700 dark:text-stone-300">
               Room Type
               <select
                 name="roomType"
@@ -871,7 +871,7 @@ async function deleteAdminReview(review) {
               </select>
             </label>
 
-            <label className="text-sm font-medium text-stone-700 sm:col-span-2">
+            <label className="text-sm font-medium text-stone-700 sm:col-span-2 dark:text-stone-300">
               Description
               <textarea
                 name="description"
@@ -884,7 +884,7 @@ async function deleteAdminReview(review) {
               />
             </label>
 
-            <label className="text-sm font-medium text-stone-700">
+            <label className="text-sm font-medium text-stone-700 dark:text-stone-300">
               Adults
               <input
                 type="number"
@@ -898,7 +898,7 @@ async function deleteAdminReview(review) {
               />
             </label>
 
-            <label className="text-sm font-medium text-stone-700">
+            <label className="text-sm font-medium text-stone-700 dark:text-stone-300">
               Children
               <input
                 type="number"
@@ -912,7 +912,7 @@ async function deleteAdminReview(review) {
               />
             </label>
 
-            <label className="text-sm font-medium text-stone-700">
+            <label className="text-sm font-medium text-stone-700 dark:text-stone-300">
               Price Per Night (₹)
               <input
                 type="number"
@@ -927,7 +927,7 @@ async function deleteAdminReview(review) {
               />
             </label>
 
-            <label className="text-sm font-medium text-stone-700">
+            <label className="text-sm font-medium text-stone-700 dark:text-stone-300">
               Total Rooms
               <input
                 type="number"
@@ -941,7 +941,7 @@ async function deleteAdminReview(review) {
               />
             </label>
 
-            <label className="text-sm font-medium text-stone-700 sm:col-span-2">
+            <label className="text-sm font-medium text-stone-700 sm:col-span-2 dark:text-stone-300">
               Amenities (comma-separated)
               <input
                 name="amenities"
@@ -952,7 +952,7 @@ async function deleteAdminReview(review) {
               />
             </label>
 
-            <label className="text-sm font-medium text-stone-700 sm:col-span-2">
+            <label className="text-sm font-medium text-stone-700 sm:col-span-2 dark:text-stone-300">
               Room Image URLs
               <textarea
                 name="imageUrl"
@@ -960,10 +960,10 @@ async function deleteAdminReview(review) {
                 onChange={handleRoomChange}
                 rows={3}
                 maxLength={12000}
-                className="mt-2 block w-full rounded-lg border border-stone-300 p-3 outline-none focus:border-emerald-800 focus:ring-2 focus:ring-emerald-100"
+                className="mt-2 block w-full rounded-lg border border-stone-300 p-3 outline-none focus:border-emerald-800 focus:ring-2 focus:ring-emerald-100 dark:border-stone-600"
                 placeholder={"https://example.com/room-1.jpg\nhttps://example.com/room-2.jpg"}
               />
-              <span className="mt-1 block text-xs font-normal text-stone-500">Add one direct HTTPS image URL per line.</span>
+              <span className="mt-1 block text-xs font-normal text-stone-500 dark:text-stone-400">Add one direct HTTPS image URL per line.</span>
             </label>
           </div>
 
@@ -978,22 +978,22 @@ async function deleteAdminReview(review) {
 
         <section className="mt-10">
           <div className="flex items-center justify-between gap-3">
-            <h2 className="font-serif text-2xl text-stone-900">Manage Rooms</h2>
+            <h2 className="font-serif text-2xl text-stone-900 dark:text-stone-100">Manage Rooms</h2>
 
             <button
               type="button"
               onClick={loadRooms}
               disabled={loadingRooms}
-              className="rounded-lg border border-stone-300 px-4 py-2 text-sm font-semibold text-stone-700 hover:bg-white disabled:opacity-60"
+              className="rounded-lg border border-stone-300 px-4 py-2 text-sm font-semibold text-stone-700 hover:bg-white disabled:opacity-60 dark:bg-[#1b2420] dark:text-stone-300 dark:border-stone-600"
             >
               {loadingRooms ? "Loading..." : "Refresh Rooms"}
             </button>
           </div>
 
           {loadingRooms ? (
-            <p className="mt-5 text-sm text-stone-600">Loading rooms...</p>
+            <p className="mt-5 text-sm text-stone-600 dark:text-stone-400">Loading rooms...</p>
           ) : rooms.length === 0 ? (
-            <p className="mt-5 rounded-xl border border-stone-200 bg-white p-6 text-sm text-stone-600">
+            <p className="mt-5 rounded-xl border border-stone-200 bg-white p-6 text-sm text-stone-600 dark:bg-[#1b2420] dark:text-stone-400 dark:border-stone-700">
               No rooms found. Create a room using the form above.
             </p>
           ) : (
@@ -1004,7 +1004,7 @@ async function deleteAdminReview(review) {
                 return (
                   <article
                     key={room._id}
-                    className="rounded-2xl border border-stone-200 bg-white p-5 shadow-sm"
+                    className="rounded-2xl border border-stone-200 bg-white p-5 shadow-sm dark:bg-[#1b2420] dark:border-stone-700"
                   >
                     <div className="flex flex-col gap-4 sm:flex-row">
                       {room.images?.[0] && (
@@ -1023,7 +1023,7 @@ async function deleteAdminReview(review) {
                             : ""}
                         </p>
 
-                        <label className="mt-3 block text-sm font-medium text-stone-700">
+                        <label className="mt-3 block text-sm font-medium text-stone-700 dark:text-stone-300">
                           Room Name
                           <input
                             value={edits.name ?? room.name}
@@ -1042,7 +1042,7 @@ async function deleteAdminReview(review) {
                         </label>
 
                         <div className="mt-3 grid gap-3 sm:grid-cols-2">
-                          <label className="text-sm font-medium text-stone-700">
+                          <label className="text-sm font-medium text-stone-700 dark:text-stone-300">
                             Price per night (₹)
                             <input
                               type="number"
@@ -1062,7 +1062,7 @@ async function deleteAdminReview(review) {
                             />
                           </label>
 
-                          <label className="text-sm font-medium text-stone-700">
+                          <label className="text-sm font-medium text-stone-700 dark:text-stone-300">
                             Total Rooms
                             <input
                               type="number"
@@ -1083,18 +1083,18 @@ async function deleteAdminReview(review) {
                           </label>
                         </div>
 
-                        <p className="mt-3 text-sm text-stone-600">
+                        <p className="mt-3 text-sm text-stone-600 dark:text-stone-400">
                           Type: {room.roomType} · Adults:{" "}
                           {room.capacity?.adults} · Children:{" "}
                           {room.capacity?.children}
                         </p>
 
-                        <p className="mt-1 text-sm text-stone-600">
+                        <p className="mt-1 text-sm text-stone-600 dark:text-stone-400">
                           Status:{" "}
                           <span className="font-semibold">{room.status}</span>
                         </p>
 
-                        <label className="mt-4 block text-sm font-medium text-stone-700">
+                        <label className="mt-4 block text-sm font-medium text-stone-700 dark:text-stone-300">
                           Room Photo URLs (one HTTPS URL per line)
                           <textarea
                             rows={3}
@@ -1107,7 +1107,7 @@ async function deleteAdminReview(review) {
                             }
                             maxLength={12000}
                             placeholder="https://example.com/room.jpg"
-                            className="mt-2 block w-full rounded-lg border border-stone-300 p-3 outline-none focus:border-emerald-800 focus:ring-2 focus:ring-emerald-100"
+                            className="mt-2 block w-full rounded-lg border border-stone-300 p-3 outline-none focus:border-emerald-800 focus:ring-2 focus:ring-emerald-100 dark:border-stone-600"
                           />
                         </label>
 
@@ -1127,7 +1127,7 @@ async function deleteAdminReview(review) {
                             type="button"
                             onClick={() => toggleRoomStatus(room)}
                             disabled={updatingRoomId === room._id}
-                            className="rounded-lg border border-stone-300 px-4 py-2 text-sm font-semibold text-stone-700 hover:bg-stone-50 disabled:opacity-60"
+                            className="rounded-lg border border-stone-300 px-4 py-2 text-sm font-semibold text-stone-700 hover:bg-stone-50 disabled:opacity-60 dark:bg-stone-800 dark:text-stone-300 dark:border-stone-600"
                           >
                             {room.status === "active"
                               ? "Deactivate"
@@ -1147,10 +1147,10 @@ async function deleteAdminReview(review) {
 <section className="mt-12">
   <div className="flex flex-wrap items-center justify-between gap-3">
     <div>
-      <h2 className="font-serif text-2xl text-stone-900">
+      <h2 className="font-serif text-2xl text-stone-900 dark:text-stone-100">
         Manage Bookings
       </h2>
-      <p className="mt-1 text-sm text-stone-600">
+      <p className="mt-1 text-sm text-stone-600 dark:text-stone-400">
         View customer reservations and payment status.
       </p>
     </div>
@@ -1159,7 +1159,7 @@ async function deleteAdminReview(review) {
       type="button"
       onClick={loadBookings}
       disabled={loadingBookings}
-      className="rounded-lg border border-stone-300 px-4 py-2 text-sm font-semibold text-stone-700 hover:bg-white disabled:opacity-60"
+      className="rounded-lg border border-stone-300 px-4 py-2 text-sm font-semibold text-stone-700 hover:bg-white disabled:opacity-60 dark:bg-[#1b2420] dark:text-stone-300 dark:border-stone-600"
     >
       {loadingBookings ? "Loading..." : "Refresh Bookings"}
     </button>
@@ -1167,15 +1167,15 @@ async function deleteAdminReview(review) {
 
 {/* Booking Summary Cards */}
 <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-  <div className="rounded-2xl border border-stone-200 bg-white p-5 shadow-sm">
-    <p className="text-sm text-stone-500">Total Bookings</p>
-    <p className="mt-2 text-3xl font-semibold text-stone-900">
+  <div className="rounded-2xl border border-stone-200 bg-white p-5 shadow-sm dark:bg-[#1b2420] dark:border-stone-700">
+    <p className="text-sm text-stone-500 dark:text-stone-400">Total Bookings</p>
+    <p className="mt-2 text-3xl font-semibold text-stone-900 dark:text-stone-100">
       {bookings.length}
     </p>
   </div>
 
-  <div className="rounded-2xl border border-stone-200 bg-white p-5 shadow-sm">
-    <p className="text-sm text-stone-500">Confirmed Bookings</p>
+  <div className="rounded-2xl border border-stone-200 bg-white p-5 shadow-sm dark:bg-[#1b2420] dark:border-stone-700">
+    <p className="text-sm text-stone-500 dark:text-stone-400">Confirmed Bookings</p>
     <p className="mt-2 text-3xl font-semibold text-emerald-800">
       {bookings.filter(
         (booking) => booking.status?.toLowerCase() === "confirmed"
@@ -1183,8 +1183,8 @@ async function deleteAdminReview(review) {
     </p>
   </div>
 
-  <div className="rounded-2xl border border-stone-200 bg-white p-5 shadow-sm">
-    <p className="text-sm text-stone-500">Pending Payments</p>
+  <div className="rounded-2xl border border-stone-200 bg-white p-5 shadow-sm dark:bg-[#1b2420] dark:border-stone-700">
+    <p className="text-sm text-stone-500 dark:text-stone-400">Pending Payments</p>
     <p className="mt-2 text-3xl font-semibold text-amber-600">
       {bookings.filter(
         (booking) => booking.paymentStatus?.toLowerCase() === "pending"
@@ -1192,9 +1192,9 @@ async function deleteAdminReview(review) {
     </p>
   </div>
 
-  <div className="rounded-2xl border border-stone-200 bg-white p-5 shadow-sm">
-    <p className="text-sm text-stone-500">Revenue Received</p>
-    <p className="mt-2 text-3xl font-semibold text-stone-900">
+  <div className="rounded-2xl border border-stone-200 bg-white p-5 shadow-sm dark:bg-[#1b2420] dark:border-stone-700">
+    <p className="text-sm text-stone-500 dark:text-stone-400">Revenue Received</p>
+    <p className="mt-2 text-3xl font-semibold text-stone-900 dark:text-stone-100">
       ₹
       {bookings
         .filter(
@@ -1216,13 +1216,13 @@ async function deleteAdminReview(review) {
     value={bookingSearch}
     onChange={(e) => setBookingSearch(e.target.value)}
     placeholder="Search customer, hotel, email or ID..."
-    className="w-full rounded-xl border border-stone-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-emerald-800 focus:ring-2 focus:ring-emerald-800/10"
+    className="w-full rounded-xl border border-stone-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-emerald-800 focus:ring-2 focus:ring-emerald-800/10 dark:bg-[#1b2420] dark:border-stone-600"
   />
 
   <select
     value={bookingStatusFilter}
     onChange={(e) => setBookingStatusFilter(e.target.value)}
-    className="w-full rounded-xl border border-stone-300 bg-white px-4 py-3 text-sm outline-none focus:border-emerald-800"
+    className="w-full rounded-xl border border-stone-300 bg-white px-4 py-3 text-sm outline-none focus:border-emerald-800 dark:bg-[#1b2420] dark:border-stone-600"
   >
     <option value="all">All booking statuses</option>
     <option value="confirmed">Confirmed</option>
@@ -1234,7 +1234,7 @@ async function deleteAdminReview(review) {
   <select
     value={paymentStatusFilter}
     onChange={(e) => setPaymentStatusFilter(e.target.value)}
-    className="w-full rounded-xl border border-stone-300 bg-white px-4 py-3 text-sm outline-none focus:border-emerald-800"
+    className="w-full rounded-xl border border-stone-300 bg-white px-4 py-3 text-sm outline-none focus:border-emerald-800 dark:bg-[#1b2420] dark:border-stone-600"
   >
     <option value="all">All payment statuses</option>
     <option value="paid">Paid</option>
@@ -1244,22 +1244,22 @@ async function deleteAdminReview(review) {
   </select>
 </div>
 
-<p className="mt-3 text-sm text-stone-500">
+<p className="mt-3 text-sm text-stone-500 dark:text-stone-400">
   Showing {filteredBookings.length} of {bookings.length} bookings
 </p>
-  <div className="mt-5 rounded-2xl border border-stone-200 bg-white shadow-sm">
+  <div className="mt-5 rounded-2xl border border-stone-200 bg-white shadow-sm dark:bg-[#1b2420] dark:border-stone-700">
     {loadingBookings && bookings.length === 0 ? (
-      <p className="p-6 text-sm text-stone-600">
+      <p className="p-6 text-sm text-stone-600 dark:text-stone-400">
         Loading bookings...
       </p>
     ) : bookings.length === 0 ? (
-      <p className="p-6 text-sm text-stone-600">
+      <p className="p-6 text-sm text-stone-600 dark:text-stone-400">
         No bookings found yet.
       </p>
     ) : (
       <div className="overflow-x-auto">
 <table className="w-full min-w-[800px] text-left text-sm">
-          <thead className="bg-stone-50 text-xs uppercase tracking-wider text-stone-600">
+          <thead className="bg-stone-50 text-xs uppercase tracking-wider text-stone-600 dark:bg-stone-800 dark:text-stone-400">
             <tr>
               <th className="px-5 py-4">Customer</th>
               <th className="px-5 py-4">Hotel / Room</th>
@@ -1358,23 +1358,23 @@ async function deleteAdminReview(review) {
               role="dialog"
               aria-modal="true"
               aria-labelledby="booking-details-title"
-              className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white p-6 shadow-2xl"
+              className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white p-6 shadow-2xl dark:bg-[#1b2420]"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <h3
                     id="booking-details-title"
-                    className="font-serif text-2xl text-stone-900"
+                    className="font-serif text-2xl text-stone-900 dark:text-stone-100"
                   >
                     Booking Details
                   </h3>
-                  <p className="mt-1 break-all text-xs text-stone-500">
+                  <p className="mt-1 break-all text-xs text-stone-500 dark:text-stone-400">
                     ID: {selectedBooking._id}
                   </p>
  
  {selectedBooking.createdAt && (
-  <p className="mt-2 text-xs text-stone-500">
+  <p className="mt-2 text-xs text-stone-500 dark:text-stone-400">
     Booked on: {formatDate(selectedBooking.createdAt)}
   </p>
 )}
@@ -1385,7 +1385,7 @@ async function deleteAdminReview(review) {
     navigator.clipboard.writeText(selectedBooking._id);
     setMessage("Booking ID copied.");
   }}
-  className="mt-2 rounded-lg border border-stone-300 px-3 py-1.5 text-xs font-semibold text-stone-700 hover:bg-stone-100"
+  className="mt-2 rounded-lg border border-stone-300 px-3 py-1.5 text-xs font-semibold text-stone-700 hover:bg-stone-100 dark:bg-stone-800 dark:text-stone-300 dark:border-stone-600"
 >
   Copy Booking ID
 </button>
@@ -1396,88 +1396,88 @@ async function deleteAdminReview(review) {
                   type="button"
                   onClick={() => setSelectedBooking(null)}
                   aria-label="Close booking details"
-                  className="rounded-lg px-3 py-2 text-xl text-stone-500 hover:bg-stone-100"
+                  className="rounded-lg px-3 py-2 text-xl text-stone-500 hover:bg-stone-100 dark:bg-stone-800 dark:text-stone-400"
                 >
                   &times;
                 </button>
               </div>
 
               <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <div className="rounded-xl bg-stone-50 p-4">
-                  <p className="text-xs font-semibold uppercase text-stone-500">
+                <div className="rounded-xl bg-stone-50 p-4 dark:bg-stone-800">
+                  <p className="text-xs font-semibold uppercase text-stone-500 dark:text-stone-400">
                     Customer
                   </p>
-                  <p className="mt-2 font-semibold text-stone-900">
+                  <p className="mt-2 font-semibold text-stone-900 dark:text-stone-100">
                     {selectedBooking.user?.name || "Customer"}
                   </p>
-                  <p className="mt-1 break-all text-sm text-stone-600">
+                  <p className="mt-1 break-all text-sm text-stone-600 dark:text-stone-400">
                     {selectedBooking.user?.email || "—"}
                   </p>
-                  <p className="mt-2 text-sm text-stone-600">
-  <span className="font-medium text-stone-800">Phone:</span>{" "}
+                  <p className="mt-2 text-sm text-stone-600 dark:text-stone-400">
+  <span className="font-medium text-stone-800 dark:text-stone-200">Phone:</span>{" "}
   {selectedBooking.user?.phone || "Not provided"}
 </p>
                 </div>
 
-                <div className="rounded-xl bg-stone-50 p-4">
-                  <p className="text-xs font-semibold uppercase text-stone-500">
+                <div className="rounded-xl bg-stone-50 p-4 dark:bg-stone-800">
+                  <p className="text-xs font-semibold uppercase text-stone-500 dark:text-stone-400">
                     Hotel & Room
                   </p>
-                  <p className="mt-2 font-semibold text-stone-900">
+                  <p className="mt-2 font-semibold text-stone-900 dark:text-stone-100">
                     {selectedBooking.hotel?.name || "Hotel unavailable"}
                   </p>
-                  <p className="mt-1 text-sm text-stone-600">
+                  <p className="mt-1 text-sm text-stone-600 dark:text-stone-400">
                     {selectedBooking.room?.name || "Room unavailable"}
                   </p>
-                  <p className="mt-1 text-sm capitalize text-stone-600">
+                  <p className="mt-1 text-sm capitalize text-stone-600 dark:text-stone-400">
                     {selectedBooking.room?.roomType || "—"}
                   </p>
                 </div>
 
-                <div className="rounded-xl bg-stone-50 p-4">
-                  <p className="text-xs font-semibold uppercase text-stone-500">
+                <div className="rounded-xl bg-stone-50 p-4 dark:bg-stone-800">
+                  <p className="text-xs font-semibold uppercase text-stone-500 dark:text-stone-400">
                     Stay
                   </p>
-                  <p className="mt-2 text-sm text-stone-700">
+                  <p className="mt-2 text-sm text-stone-700 dark:text-stone-300">
                     Check-in: {formatDate(selectedBooking.checkIn)}
                   </p>
-                  <p className="mt-2 text-sm text-stone-700">
+                  <p className="mt-2 text-sm text-stone-700 dark:text-stone-300">
                     Check-out: {formatDate(selectedBooking.checkOut)}
                   </p>
                 </div>
 
-                <div className="rounded-xl bg-stone-50 p-4">
-                  <p className="text-xs font-semibold uppercase text-stone-500">
+                <div className="rounded-xl bg-stone-50 p-4 dark:bg-stone-800">
+                  <p className="text-xs font-semibold uppercase text-stone-500 dark:text-stone-400">
                     Guests & Rooms
                   </p>
-                  <p className="mt-2 text-sm text-stone-700">
+                  <p className="mt-2 text-sm text-stone-700 dark:text-stone-300">
                     Adults: {selectedBooking.guests?.adults ?? 0}
                   </p>
-                  <p className="mt-1 text-sm text-stone-700">
+                  <p className="mt-1 text-sm text-stone-700 dark:text-stone-300">
                     Children: {selectedBooking.guests?.children ?? 0}
                   </p>
-                  <p className="mt-1 text-sm text-stone-700">
+                  <p className="mt-1 text-sm text-stone-700 dark:text-stone-300">
                     Rooms booked: {selectedBooking.roomsBooked ?? 1}
                   </p>
                 </div>
               </div>
 
-              <div className="mt-4 rounded-xl border border-stone-200 p-4">
-                <p className="text-sm text-stone-500">Total Amount</p>
-                <p className="mt-1 text-2xl font-bold text-stone-900">
+              <div className="mt-4 rounded-xl border border-stone-200 p-4 dark:border-stone-700">
+                <p className="text-sm text-stone-500 dark:text-stone-400">Total Amount</p>
+                <p className="mt-1 text-2xl font-bold text-stone-900 dark:text-stone-100">
                   {formatAmount(selectedBooking.totalAmount)}
                 </p>
 
                 <div className="mt-4 flex flex-wrap gap-3">
-                  <span className="rounded-full bg-stone-100 px-3 py-1 text-xs font-semibold capitalize text-stone-700">
+                  <span className="rounded-full bg-stone-100 px-3 py-1 text-xs font-semibold capitalize text-stone-700 dark:bg-stone-800 dark:text-stone-300">
                     Booking: {selectedBooking.status || "unknown"}
                   </span>
                   <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold capitalize text-emerald-800">
                     Payment: {selectedBooking.paymentStatus || "unknown"}
                   </span>
                 </div>
-                <div className="mt-5 border-t border-stone-200 pt-5">
-  <p className="text-sm font-semibold text-stone-800">
+                <div className="mt-5 border-t border-stone-200 pt-5 dark:border-stone-700">
+  <p className="text-sm font-semibold text-stone-800 dark:text-stone-200">
     Manage Booking Status
   </p>
 
@@ -1529,7 +1529,7 @@ async function deleteAdminReview(review) {
     {["expired", "cancelled", "completed"].includes(
       selectedBooking.status?.toLowerCase()
     ) && (
-      <p className="text-sm text-stone-500">
+      <p className="text-sm text-stone-500 dark:text-stone-400">
         This booking is {selectedBooking.status} and cannot be changed here.
       </p>
     )}
@@ -1553,21 +1553,21 @@ async function deleteAdminReview(review) {
 
         <section className="mt-10">
           <div className="flex items-center justify-between gap-3">
-            <h2 className="font-serif text-2xl text-stone-900">Your hotels</h2>
+            <h2 className="font-serif text-2xl text-stone-900 dark:text-stone-100">Your hotels</h2>
             <button
               type="button"
               onClick={loadHotels}
               disabled={loadingHotels}
-              className="rounded-lg border border-stone-300 px-4 py-2 text-sm font-semibold text-stone-700 hover:bg-white disabled:opacity-60"
+              className="rounded-lg border border-stone-300 px-4 py-2 text-sm font-semibold text-stone-700 hover:bg-white disabled:opacity-60 dark:bg-[#1b2420] dark:text-stone-300 dark:border-stone-600"
             >
               {loadingHotels ? "Loading..." : "Refresh"}
             </button>
           </div>
 
           {loadingHotels ? (
-            <p className="mt-5 text-sm text-stone-600">Loading hotels...</p>
+            <p className="mt-5 text-sm text-stone-600 dark:text-stone-400">Loading hotels...</p>
           ) : hotels.length === 0 ? (
-            <p className="mt-5 rounded-xl border border-stone-200 bg-white p-6 text-sm text-stone-600">
+            <p className="mt-5 rounded-xl border border-stone-200 bg-white p-6 text-sm text-stone-600 dark:bg-[#1b2420] dark:text-stone-400 dark:border-stone-700">
               No hotels found. Create your first hotel using the form above.
             </p>
           ) : (
@@ -1575,20 +1575,20 @@ async function deleteAdminReview(review) {
               {hotels.map((hotel) => (
                 <article
                   key={hotel._id}
-                  className="flex flex-col gap-4 rounded-2xl border border-stone-200 bg-white p-5 shadow-sm sm:flex-row sm:items-center sm:justify-between"
+                  className="flex flex-col gap-4 rounded-2xl border border-stone-200 bg-white p-5 shadow-sm sm:flex-row sm:items-center sm:justify-between dark:bg-[#1b2420] dark:border-stone-700"
                 >
                   <div className="min-w-0">
-                    <h3 className="font-semibold text-stone-900">
+                    <h3 className="font-semibold text-stone-900 dark:text-stone-100">
                       {hotel.name}
                     </h3>
-                    <p className="mt-1 text-sm text-stone-600">
+                    <p className="mt-1 text-sm text-stone-600 dark:text-stone-400">
                       {hotel.location?.city}, {hotel.location?.state}
                     </p>
 
                     <div className="mt-3 w-full sm:max-w-md">
                       <label
                         htmlFor={`hotel-image-${hotel._id}`}
-                        className="text-sm font-medium text-stone-700"
+                        className="text-sm font-medium text-stone-700 dark:text-stone-300"
                       >
                         Hotel Image URL
                       </label>
@@ -1605,9 +1605,9 @@ async function deleteAdminReview(review) {
                         placeholder={"https://example.com/hotel-front.jpg\nhttps://example.com/hotel-lobby.jpg"}
                         maxLength={12000}
                         rows={3}
-                        className="mt-2 block w-full rounded-lg border border-stone-300 p-3 outline-none focus:border-emerald-800 focus:ring-2 focus:ring-emerald-100"
+                        className="mt-2 block w-full rounded-lg border border-stone-300 p-3 outline-none focus:border-emerald-800 focus:ring-2 focus:ring-emerald-100 dark:border-stone-600"
                       />
-                      <p className="mt-1 text-xs text-stone-500">One HTTPS URL per line. Saving replaces the hotel photo gallery.</p>
+                      <p className="mt-1 text-xs text-stone-500 dark:text-stone-400">One HTTPS URL per line. Saving replaces the hotel photo gallery.</p>
 
                       <button
                         type="button"
@@ -1626,7 +1626,7 @@ async function deleteAdminReview(review) {
                         { key: "viewsAndSurroundings", label: "Views & Surroundings Photos", current: hotel.experience?.viewsAndSurroundings },
                         { key: "bedrooms", label: "Bedrooms Photos", current: hotel.experience?.bedrooms },
                       ].map((group) => (
-                        <label key={group.key} className="block text-sm font-medium text-stone-700">
+                        <label key={group.key} className="block text-sm font-medium text-stone-700 dark:text-stone-300">
                           {group.label}
                           <textarea
                             rows={4}
@@ -1637,9 +1637,9 @@ async function deleteAdminReview(review) {
                               [hotel._id]: { ...previous[hotel._id], [group.key]: event.target.value },
                             }))}
                             placeholder="One HTTPS image URL per line"
-                            className="mt-2 block w-full rounded-lg border border-stone-300 p-3 text-sm outline-none focus:border-emerald-800 focus:ring-2 focus:ring-emerald-100"
+                            className="mt-2 block w-full rounded-lg border border-stone-300 p-3 text-sm outline-none focus:border-emerald-800 focus:ring-2 focus:ring-emerald-100 dark:border-stone-600"
                           />
-                          <span className="mt-1 block text-xs font-normal text-stone-500">{parseImageUrls(experienceEdits[hotel._id]?.[group.key] ?? imageUrlsToText(group.current)).length} photo(s)</span>
+                          <span className="mt-1 block text-xs font-normal text-stone-500 dark:text-stone-400">{parseImageUrls(experienceEdits[hotel._id]?.[group.key] ?? imageUrlsToText(group.current)).length} photo(s)</span>
                         </label>
                       ))}
                     </div>
@@ -1652,7 +1652,7 @@ async function deleteAdminReview(review) {
                       {savingExperienceId === hotel._id ? "Saving experience photos..." : "Save Experience Photos"}
                     </button>
 
-                    <p className="mt-2 text-xs text-stone-500">
+                    <p className="mt-2 text-xs text-stone-500 dark:text-stone-400">
                       Status:{" "}
                       <span className="font-semibold uppercase">
                         {hotel.status}
@@ -1692,12 +1692,12 @@ async function deleteAdminReview(review) {
             </div>
           )}
         </section>
-    <section className="mt-12 border-t border-stone-200 pt-8">
+    <section className="mt-12 border-t border-stone-200 pt-8 dark:border-stone-700">
   <button
     type="button"
     onClick={() => setReviewsExpanded((previous) => !previous)}
     aria-expanded={reviewsExpanded}
-    className="flex w-full items-center justify-between gap-4 rounded-xl border border-stone-200 bg-white px-5 py-4 text-left shadow-sm transition hover:border-emerald-800/40 hover:bg-stone-50"
+    className="flex w-full items-center justify-between gap-4 rounded-xl border border-stone-200 bg-white px-5 py-4 text-left shadow-sm transition hover:border-emerald-800/40 hover:bg-stone-50 dark:bg-[#1b2420] dark:bg-stone-800 dark:border-stone-700"
   >
     <span className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1">
       <span className="text-xs font-bold uppercase tracking-[0.15em] text-emerald-800">
@@ -1706,20 +1706,20 @@ async function deleteAdminReview(review) {
 
       <span className="hidden text-stone-300 sm:inline">/</span>
 
-      <span className="font-serif text-lg text-stone-900">
+      <span className="font-serif text-lg text-stone-900 dark:text-stone-100">
         Hotel reviews &amp; ratings
       </span>
     </span>
 
     <span className="flex shrink-0 items-center gap-3">
-      <span className="rounded-full bg-stone-100 px-3 py-1.5 text-xs font-semibold text-stone-700">
+      <span className="rounded-full bg-stone-100 px-3 py-1.5 text-xs font-semibold text-stone-700 dark:bg-stone-800 dark:text-stone-300">
         {loadingAdminReviews ? "Loading…" : `${adminReviews.length} reviews`}
       </span>
 
       <span
         className={`text-lg text-stone-500 transition-transform ${
           reviewsExpanded ? "rotate-180" : ""
-        }`}
+        } dark:text-stone-400`}
         aria-hidden="true"
       >
        ⌄
@@ -1747,11 +1747,11 @@ async function deleteAdminReview(review) {
       )}
 
       {loadingAdminReviews ? (
-        <p className="rounded-xl border border-stone-200 bg-white p-5 text-sm text-stone-500">
+        <p className="rounded-xl border border-stone-200 bg-white p-5 text-sm text-stone-500 dark:bg-[#1b2420] dark:text-stone-400 dark:border-stone-700">
           Loading guest reviews…
         </p>
       ) : adminReviews.length === 0 ? (
-        <p className="rounded-xl border border-stone-200 bg-white p-5 text-sm text-stone-500">
+        <p className="rounded-xl border border-stone-200 bg-white p-5 text-sm text-stone-500 dark:bg-[#1b2420] dark:text-stone-400 dark:border-stone-700">
           {reviewsError
             ? "Reviews could not be loaded."
             : "No guest reviews have been submitted yet."}
@@ -1761,12 +1761,12 @@ async function deleteAdminReview(review) {
           {adminReviews.map((review) => (
             <article
               key={review._id}
-              className="rounded-xl border border-stone-200 bg-white p-5 shadow-sm"
+              className="rounded-xl border border-stone-200 bg-white p-5 shadow-sm dark:bg-[#1b2420] dark:border-stone-700"
             >
               <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
-                    <h3 className="font-semibold text-stone-900">
+                    <h3 className="font-semibold text-stone-900 dark:text-stone-100">
                       {review.hotel?.name || "Hotel"}
                     </h3>
 
@@ -1775,7 +1775,7 @@ async function deleteAdminReview(review) {
                     </span>
                   </div>
 
-                  <p className="mt-1 text-xs text-stone-500">
+                  <p className="mt-1 text-xs text-stone-500 dark:text-stone-400">
                     Guest:{" "}
                     {review.user?.name ||
                       [
@@ -1791,11 +1791,11 @@ async function deleteAdminReview(review) {
                       : ""}
                   </p>
 
-                  <p className="mt-3 whitespace-pre-wrap break-words text-sm leading-6 text-stone-700">
+                  <p className="mt-3 whitespace-pre-wrap break-words text-sm leading-6 text-stone-700 dark:text-stone-300">
                     {review.comment || "No written feedback provided."}
                   </p>
 
-                  <p className="mt-3 text-xs text-stone-400">
+                  <p className="mt-3 text-xs text-stone-400 dark:text-stone-300">
                     {review.createdAt
                       ? new Date(review.createdAt).toLocaleDateString(
                           "en-IN",
