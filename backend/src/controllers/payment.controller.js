@@ -6,8 +6,9 @@ const { createPaymentOrder,fetchPayment } = require("../services/payment.service
 const PDFDocument = require("pdfkit");
 const hotelModel = require("../model/hotel.model");
 const roomModel = require("../model/room.model");
-
-
+const {
+  queueBookingConfirmationNotification,
+} = require("../services/booking-notification.service");
 
 
 
@@ -101,6 +102,9 @@ async function createBookingPaymentOrder(req, res) {
   }
 }
 
+
+
+
 async function verifyBookingPayment(req, res) {
   try {
     const {
@@ -110,7 +114,6 @@ async function verifyBookingPayment(req, res) {
       razorpay_signature,
     } = req.body;
 
-    // 1. Required fields
     if (
       !bookingId ||
       !razorpay_payment_id ||
@@ -122,14 +125,12 @@ async function verifyBookingPayment(req, res) {
       });
     }
 
-    // 2. Validate booking ID
     if (!mongoose.Types.ObjectId.isValid(bookingId)) {
       return res.status(400).json({
         message: "Invalid booking ID",
       });
     }
 
-    // 3. Find user's booking
     const booking = await bookingModel.findOne({
       _id: bookingId,
       user: req.user.user_id,
@@ -141,16 +142,21 @@ async function verifyBookingPayment(req, res) {
       });
     }
 
-    // 4. Verify Razorpay order belongs to this booking
     if (booking.paymentOrderId !== razorpay_order_id) {
       return res.status(400).json({
         message: "Invalid payment order",
       });
     }
 
-    // 5. Don't process an already paid booking
-
+    // Already-paid booking: ensure notification is queued.
     if (booking.paymentStatus === "paid") {
+      if (
+        booking.paymentId === razorpay_payment_id &&
+        booking.status === "confirmed"
+      ) {
+        await queueNotificationWithLog(booking._id);
+      }
+
       return res.status(200).json({
         message: "Payment already verified",
         bookingId: booking._id,
@@ -159,134 +165,123 @@ async function verifyBookingPayment(req, res) {
       });
     }
 
-
-
-    // 6. Generate expected signature
     const generatedSignature = crypto
       .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
       .update(`${booking.paymentOrderId}|${razorpay_payment_id}`)
       .digest("hex");
 
-    // 7. Timing-safe comparison
-const generatedSignatureBuffer = Buffer.from(generatedSignature);
-const receivedSignatureBuffer = Buffer.from(razorpay_signature);
+    const generatedSignatureBuffer = Buffer.from(generatedSignature);
+    const receivedSignatureBuffer = Buffer.from(razorpay_signature);
 
-if (
-  generatedSignatureBuffer.length !== receivedSignatureBuffer.length ||
-  !crypto.timingSafeEqual(
-    generatedSignatureBuffer,
-    receivedSignatureBuffer
-  )
-) {
-  return res.status(400).json({
-    message: "Payment verification failed",
-  });
-}
+    if (
+      generatedSignatureBuffer.length !== receivedSignatureBuffer.length ||
+      !crypto.timingSafeEqual(
+        generatedSignatureBuffer,
+        receivedSignatureBuffer
+      )
+    ) {
+      return res.status(400).json({
+        message: "Payment verification failed",
+      });
+    }
 
-// Fetch actual payment from Razorpay
-const payment = await fetchPayment(razorpay_payment_id);
+    const payment = await fetchPayment(razorpay_payment_id);
 
-// Verify payment belongs to our Razorpay order
-if (payment.order_id !== booking.paymentOrderId) {
-    return res.status(400).json({
-        message: "Payment does not belong to this booking"
-    });
-}
+    if (payment.order_id !== booking.paymentOrderId) {
+      return res.status(400).json({
+        message: "Payment does not belong to this booking",
+      });
+    }
 
-// Verify amount
-const expectedAmount = Math.round(
-    booking.totalAmount * 100
-);
+    const expectedAmount = Math.round(booking.totalAmount * 100);
 
-if (payment.amount !== expectedAmount) {
-    return res.status(400).json({
-        message: "Payment amount mismatch"
-    });
-}
+    if (payment.amount !== expectedAmount) {
+      return res.status(400).json({
+        message: "Payment amount mismatch",
+      });
+    }
 
-// Verify currency
-if (payment.currency !== "INR") {
-    return res.status(400).json({
-        message: "Invalid payment currency"
-    });
-}
+    if (payment.currency !== "INR") {
+      return res.status(400).json({
+        message: "Invalid payment currency",
+      });
+    }
 
-// Payment must be captured
-if (payment.status !== "captured") {
-    return res.status(400).json({
-        message: "Payment has not been captured"
-    });
-}
+    if (payment.status !== "captured") {
+      return res.status(400).json({
+        message: "Payment has not been captured",
+      });
+    }
 
-// 8. Payment verified
-// 8. Atomically confirm the booking after payment verification
-const updatedBooking = await bookingModel.findOneAndUpdate(
-  {
-    _id: booking._id,
-    user: req.user.user_id,
-    paymentOrderId: booking.paymentOrderId,
-    status: "pending",
-    paymentStatus: { $in: ["pending", "failed"] },
-    $or: [
-      { paymentExpiresAt: null },
-      { paymentExpiresAt: { $exists: false } },
-      { paymentExpiresAt: { $gt: new Date() } },
-    ],
-  },
-  {
-    $set: {
-      paymentStatus: "paid",
-      paymentId: razorpay_payment_id,
-      paymentProvider: "razorpay",
-      status: "confirmed",
-    },
-  },
-  {
-    new: true,
-    runValidators: true,
-  }
-);
+    const updatedBooking = await bookingModel.findOneAndUpdate(
+      {
+        _id: booking._id,
+        user: req.user.user_id,
+        paymentOrderId: booking.paymentOrderId,
+        status: "pending",
+        paymentStatus: { $in: ["pending", "failed"] },
+        $or: [
+          { paymentExpiresAt: null },
+          { paymentExpiresAt: { $exists: false } },
+          { paymentExpiresAt: { $gt: new Date() } },
+        ],
+      },
+      {
+        $set: {
+          paymentStatus: "paid",
+          paymentId: razorpay_payment_id,
+          paymentProvider: "razorpay",
+          status: "confirmed",
+        },
+      },
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
 
-if (!updatedBooking) {
-  const latestBooking = await bookingModel.findOne({
-    _id: booking._id,
-    user: req.user.user_id,
-  });
+    if (!updatedBooking) {
+      const latestBooking = await bookingModel.findOne({
+        _id: booking._id,
+        user: req.user.user_id,
+      });
 
-  // Webhook may have processed the same payment first.
-  if (
-    latestBooking?.paymentStatus === "paid" &&
-    latestBooking.paymentId === razorpay_payment_id
-  ) {
+      if (
+        latestBooking?.paymentStatus === "paid" &&
+        latestBooking.paymentId === razorpay_payment_id &&
+        latestBooking.status === "confirmed"
+      ) {
+        await queueNotificationWithLog(latestBooking._id);
+
+        return res.status(200).json({
+          message: "Payment already verified",
+          bookingId: latestBooking._id,
+          status: latestBooking.status,
+          paymentStatus: latestBooking.paymentStatus,
+        });
+      }
+
+      console.error("Payment reconciliation required", {
+        bookingId: String(booking._id),
+        paymentId: razorpay_payment_id,
+        bookingStatus: latestBooking?.status,
+      });
+
+      return res.status(409).json({
+        message:
+          "Payment received but booking confirmation requires reconciliation. Please contact support.",
+      });
+    }
+
+    // Payment is confirmed; queue the hotel owner's notification.
+    await queueNotificationWithLog(updatedBooking._id);
+
     return res.status(200).json({
-      message: "Payment already verified",
-      bookingId: latestBooking._id,
-      status: latestBooking.status,
-      paymentStatus: latestBooking.paymentStatus,
+      message: "Payment verified successfully",
+      bookingId: updatedBooking._id,
+      status: updatedBooking.status,
+      paymentStatus: updatedBooking.paymentStatus,
     });
-  }
-
-  // Payment was captured, but booking could not be confirmed.
-  console.error("Payment reconciliation required", {
-    bookingId: String(booking._id),
-    paymentId: razorpay_payment_id,
-    bookingStatus: latestBooking?.status,
-  });
-
-  return res.status(409).json({
-    message:
-      "Payment received but booking confirmation requires reconciliation. Please contact support.",
-  });
-}
-
-return res.status(200).json({
-  message: "Payment verified successfully",
-  bookingId: updatedBooking._id,
-  status: updatedBooking.status,
-  paymentStatus: updatedBooking.paymentStatus,
-});
-
-
   } catch (error) {
     console.error("Payment verification error:", error);
 
@@ -295,6 +290,55 @@ return res.status(200).json({
     });
   }
 }
+
+async function queueNotificationWithLog(bookingId) {
+  try {
+    const notification = await queueBookingConfirmationNotification(bookingId);
+
+    console.log("BOOKING NOTIFICATION QUEUED:", {
+      bookingId: String(bookingId),
+      notificationId: String(notification?._id),
+      status: notification?.status,
+      recipientEmail: notification?.recipientEmail,
+    });
+
+    return notification;
+  } catch (error) {
+    console.error("BOOKING NOTIFICATION QUEUE FAILED:", {
+      bookingId: String(bookingId),
+      error: error.message,
+    });
+
+    // Don't turn a verified payment into a payment failure.
+    return null;
+  }
+}
+
+
+async function queueNotificationWithLog(bookingId) {
+  try {
+    const notification = await queueBookingConfirmationNotification(bookingId);
+
+    console.log("BOOKING NOTIFICATION QUEUED:", {
+      bookingId: String(bookingId),
+      notificationId: String(notification?._id),
+      status: notification?.status,
+      recipientEmail: notification?.recipientEmail,
+    });
+
+    return notification;
+  } catch (error) {
+    console.error("BOOKING NOTIFICATION QUEUE FAILED:", {
+      bookingId: String(bookingId),
+      error: error.message,
+    });
+
+    // Don't turn a verified payment into a payment failure.
+    return null;
+  }
+}
+
+
 
 
 async function getBookingPaymentReceipt(req, res) {

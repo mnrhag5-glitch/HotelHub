@@ -1,5 +1,7 @@
 require("dotenv").config();
-
+const {
+  startBookingNotificationWorker,
+} = require("./src/services/booking-notification-worker.service");
 const http = require("http");
 const { Server } = require("socket.io");
 const jwt = require("jsonwebtoken");
@@ -63,12 +65,14 @@ io.use(async (socket, next) => {
 async function startServer() {
     try {
         await connectDb();
+        
 
         server.listen(PORT, () => {
             console.log(`HotelHub server running on port ${PORT}`);
         });
 
         startBookingExpiryJob();
+        startBookingNotificationWorker();
     } catch (error) {
         console.log("Server startup failed");
         process.exit(1);

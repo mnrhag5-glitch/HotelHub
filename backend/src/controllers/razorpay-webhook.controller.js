@@ -2,6 +2,9 @@
 const crypto = require("crypto");
 const bookingModel = require("../model/booking.model");
 const paymentEventModel = require("../model/payment-event.model");
+const {
+  queueBookingConfirmationNotification,
+} = require("../services/booking-notification.service");
 
 const STALE_AFTER_MS = 5 * 60 * 1000;
 
@@ -61,7 +64,7 @@ async function handleRazorpayWebhook(req, res) {
 
     const now = new Date();
 
-    // Atomically create a processing record.
+    // Claim a new webhook event or recover an abandoned one.
     try {
       paymentEvent = await paymentEventModel.create({
         eventId,
@@ -86,7 +89,6 @@ async function handleRazorpayWebhook(req, res) {
         });
       }
 
-      // Recover an event left processing after a server crash.
       const staleBefore = new Date(Date.now() - STALE_AFTER_MS);
 
       paymentEvent = await paymentEventModel.findOneAndUpdate(
@@ -115,8 +117,10 @@ async function handleRazorpayWebhook(req, res) {
     }
 
     // Acknowledge other valid event types without changing bookings.
-    if (payload.event !== "payment.captured" &&
-        payload.event !== "payment.failed") {
+    if (
+      payload.event !== "payment.captured" &&
+      payload.event !== "payment.failed"
+    ) {
       await markEventProcessed(paymentEvent);
 
       return res.status(200).json({
@@ -135,7 +139,6 @@ async function handleRazorpayWebhook(req, res) {
     });
 
     if (!booking) {
-      // Retry later; the booking may not yet be available.
       throw new Error(`Booking not found for order ${payment.order_id}`);
     }
 
@@ -150,7 +153,7 @@ async function handleRazorpayWebhook(req, res) {
     }
 
     if (payload.event === "payment.failed") {
-      // Never overwrite a successful payment.
+      // Never overwrite an already successful payment.
       if (
         booking.paymentStatus !== "paid" &&
         booking.status === "pending"
@@ -170,14 +173,19 @@ async function handleRazorpayWebhook(req, res) {
       throw new Error("Captured event does not contain a captured payment");
     }
 
-    // Idempotent booking handling.
+    // Idempotent handling of a previously confirmed payment.
     if (booking.paymentStatus === "paid") {
-      if (booking.paymentId !== payment.id) {
+      if (
+        booking.paymentId !== payment.id ||
+        booking.status !== "confirmed"
+      ) {
         throw new Error(
-          "A different payment is already recorded; reconciliation required"
+          "Payment or booking state mismatch; reconciliation required"
         );
       }
 
+      // Queue errors must leave the event retryable.
+      await queueBookingConfirmationNotification(booking._id);
       await markEventProcessed(paymentEvent);
 
       return res.status(200).json({
@@ -185,64 +193,71 @@ async function handleRazorpayWebhook(req, res) {
       });
     }
 
-const updatedBooking = await bookingModel.findOneAndUpdate(
-  {
-    _id: booking._id,
-    paymentOrderId: payment.order_id,
-    status: "pending",
-    paymentStatus: { $in: ["pending", "failed"] },
-    $or: [
-      { paymentExpiresAt: null },
-      { paymentExpiresAt: { $exists: false } },
-      { paymentExpiresAt: { $gt: new Date() } },
-    ],
-  },
-  {
-    $set: {
-      paymentStatus: "paid",
-      paymentId: payment.id,
-      paymentProvider: "razorpay",
-      status: "confirmed",
-    },
-  },
-  {
-    new: true,
-    runValidators: true,
-  }
-);
+    // Atomically confirm the booking only if it is still eligible.
+    const updatedBooking = await bookingModel.findOneAndUpdate(
+      {
+        _id: booking._id,
+        paymentOrderId: payment.order_id,
+        status: "pending",
+        paymentStatus: { $in: ["pending", "failed"] },
+        $or: [
+          { paymentExpiresAt: null },
+          { paymentExpiresAt: { $exists: false } },
+          { paymentExpiresAt: { $gt: new Date() } },
+        ],
+      },
+      {
+        $set: {
+          paymentStatus: "paid",
+          paymentId: payment.id,
+          paymentProvider: "razorpay",
+          status: "confirmed",
+        },
+      },
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
 
-if (!updatedBooking) {
-  const latestBooking = await bookingModel.findById(booking._id);
+    if (!updatedBooking) {
+      const latestBooking = await bookingModel.findById(booking._id);
 
-  if (
-    latestBooking?.paymentStatus === "paid" &&
-    latestBooking.paymentId === payment.id
-  ) {
+      // Another request may already have confirmed this same payment.
+      if (
+        latestBooking?.paymentStatus === "paid" &&
+        latestBooking.paymentId === payment.id &&
+        latestBooking.status === "confirmed"
+      ) {
+        await queueBookingConfirmationNotification(latestBooking._id);
+        await markEventProcessed(paymentEvent);
+
+        return res.status(200).json({
+          message: "Payment already recorded",
+        });
+      }
+
+      console.error("ACTION REQUIRED: Payment reconciliation", {
+        bookingId: String(booking._id),
+        paymentId: payment.id,
+        bookingStatus: latestBooking?.status,
+        paymentStatus: latestBooking?.paymentStatus,
+      });
+
+      throw new Error("Booking could not be safely confirmed");
+    }
+
+    // Payment is confirmed. Queueing failure must not reverse payment.
+    // Throwing leaves this webhook event retryable for recovery.
+    await queueBookingConfirmationNotification(updatedBooking._id);
+
     await markEventProcessed(paymentEvent);
-
-    return res.status(200).json({
-      message: "Payment already recorded",
-    });
-  }
-
-  console.error("ACTION REQUIRED: Payment reconciliation", {
-    bookingId: String(booking._id),
-    paymentId: payment.id,
-    bookingStatus: latestBooking?.status,
-    paymentStatus: latestBooking?.paymentStatus,
-  });
-
-  // Return an error so Razorpay can retry this event.
-  throw new Error("Booking could not be safely confirmed");
-}
-
-await markEventProcessed(paymentEvent);
 
     console.log("Razorpay payment event processed", {
       eventId,
-      bookingId: String(booking._id),
-      bookingStatus: booking.status,
-      paymentStatus: booking.paymentStatus,
+      bookingId: String(updatedBooking._id),
+      bookingStatus: updatedBooking.status,
+      paymentStatus: updatedBooking.paymentStatus,
     });
 
     return res.status(200).json({
@@ -251,8 +266,7 @@ await markEventProcessed(paymentEvent);
   } catch (error) {
     console.error("Razorpay webhook error:", error.message);
 
-    // Keep the event in processing so a later retry can recover it.
-    // The stale-event recovery allows a retry after five minutes.
+    // Leave the event in processing so stale-event recovery can retry.
     return res.status(500).json({
       message: "Webhook processing failed; retry required",
     });

@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from "react";
+
+import { useCallback, useEffect, useRef, useState } from "react";
 import { chatSocket } from "../services/chatSocket";
 
 export default function HotelLiveChat({ hotelId }) {
@@ -9,15 +10,20 @@ export default function HotelLiveChat({ hotelId }) {
   const [status, setStatus] = useState("idle");
   const [error, setError] = useState("");
   const [sending, setSending] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
 
   const conversationIdRef = useRef(null);
   const currentCustomerIdRef = useRef(null);
   const messagesEndRef = useRef(null);
+  const isOpenRef = useRef(false);
+  const joinChatRef = useRef(null);
 
   useEffect(() => {
-    if (!isOpen || !hotelId) return;
+    isOpenRef.current = isOpen;
+  }, [isOpen]);
 
-    let active = true;
+  const joinChat = useCallback(() => {
+    if (!hotelId || !chatSocket.connected) return;
 
     conversationIdRef.current = null;
     currentCustomerIdRef.current = null;
@@ -26,55 +32,90 @@ export default function HotelLiveChat({ hotelId }) {
     setError("");
     setStatus("connecting");
 
+    chatSocket.emit("chat:join", { hotelId }, (result) => {
+      if (!result?.success) {
+        setStatus("error");
+        setError(
+          result?.message ||
+            "Unable to open chat. Please login and try again."
+        );
+        return;
+      }
+
+      const id = result.conversation?.id || result.conversation?._id;
+
+      currentCustomerIdRef.current =
+        result.conversation?.customerId ||
+        result.conversation?.customer?._id ||
+        result.conversation?.customer ||
+        null;
+
+      if (!id) {
+        setStatus("error");
+        setError("Conversation ID missing from server response.");
+        return;
+      }
+
+      conversationIdRef.current = String(id);
+      setConversationId(String(id));
+      setMessages(result.messages || []);
+      setStatus("connected");
+    });
+  }, [hotelId]);
+
+  useEffect(() => {
+    joinChatRef.current = joinChat;
+  }, [joinChat]);
+
+  // Keep the socket connected even when the chat window is closed.
+  useEffect(() => {
+    if (!hotelId) return;
+
+    let active = true;
+
+const requestUnreadCount = () => {
+  console.log("Requesting unread count:", { hotelId });
+
+  chatSocket.emit(
+    "chat:customer:unread-count",
+    { hotelId },
+    (result) => {
+      console.log("UNREAD COUNT RESULT:", result);
+
+      if (!active) return;
+
+      if (result?.success) {
+        setUnreadCount(Number(result.unreadCount) || 0);
+      } else {
+        console.error("Unread count request failed:", result);
+      }
+    }
+  );
+};
     const handleConnect = () => {
       if (!active) return;
 
-      setStatus("connecting");
-      setError("");
+      requestUnreadCount();
 
-      chatSocket.emit("chat:join", { hotelId }, (result) => {
-        if (!active) return;
-
-        if (!result?.success) {
-          setStatus("error");
-          setError(
-            result?.message ||
-              "Unable to open chat. Please login and try again.",
-          );
-          return;
-        }
-
-        const id = result.conversation?.id || result.conversation?._id;
-
-        currentCustomerIdRef.current =
-          result.conversation?.customerId ||
-          result.conversation?.customer?._id ||
-          result.conversation?.customer ||
-          null;
-
-        if (!id) {
-          setStatus("error");
-          setError("Conversation ID missing from server response.");
-          return;
-        }
-
-        conversationIdRef.current = String(id);
-        setConversationId(String(id));
-        console.log("CUSTOMER ID:", currentCustomerIdRef.current);
-        console.log(
-          "SENDER IDS:",
-          result.messages?.map((item) => item.sender),
-        );
-        setMessages(result.messages || []);
-        setStatus("connected");
-      });
+      if (isOpenRef.current) {
+        joinChatRef.current?.();
+      }
     };
 
     const handleConnectError = () => {
       if (!active) return;
 
-      setStatus("error");
-      setError("Chat connect nahi ho paya. Login karke dobara try karo.");
+      if (isOpenRef.current) {
+        setStatus("error");
+        setError("Chat connect nahi ho paya. Login karke dobara try karo.");
+      }
+    };
+
+    const handleUnreadCountUpdated = (data) => {
+      if (!active) return;
+      if (String(data?.hotelId) !== String(hotelId)) return;
+
+      setUnreadCount(Number(data.unreadCount) || 0);
     };
 
     const handleNewMessage = (newMessage) => {
@@ -82,15 +123,23 @@ export default function HotelLiveChat({ hotelId }) {
 
       const eventConversationId =
         typeof newMessage?.conversation === "object"
-          ? newMessage.conversation?._id
+          ? newMessage.conversation?._id ||
+            newMessage.conversation?.id
           : newMessage?.conversation;
 
-      if (String(eventConversationId) !== conversationIdRef.current) {
+      if (
+        !conversationIdRef.current ||
+        String(eventConversationId) !== conversationIdRef.current
+      ) {
         return;
       }
 
       setMessages((previous) => {
-        if (previous.some((item) => item._id === newMessage._id)) {
+        if (
+          previous.some(
+            (item) => String(item._id) === String(newMessage._id)
+          )
+        ) {
           return previous;
         }
 
@@ -101,6 +150,10 @@ export default function HotelLiveChat({ hotelId }) {
     chatSocket.on("connect", handleConnect);
     chatSocket.on("connect_error", handleConnectError);
     chatSocket.on("chat:new-message", handleNewMessage);
+    chatSocket.on(
+      "chat:customer:unread-count-updated",
+      handleUnreadCountUpdated
+    );
 
     if (chatSocket.connected) {
       handleConnect();
@@ -114,10 +167,30 @@ export default function HotelLiveChat({ hotelId }) {
       chatSocket.off("connect", handleConnect);
       chatSocket.off("connect_error", handleConnectError);
       chatSocket.off("chat:new-message", handleNewMessage);
+      chatSocket.off(
+        "chat:customer:unread-count-updated",
+        handleUnreadCountUpdated
+      );
 
+      joinChatRef.current = null;
       conversationIdRef.current = null;
-      chatSocket.disconnect();
+
+      // Don't disconnect here: this effect can rerun when hotelId changes.
     };
+  }, [hotelId]);
+
+  // Open the conversation when the user opens the chat window.
+  useEffect(() => {
+    if (!isOpen || !hotelId) return;
+
+    setError("");
+
+    if (chatSocket.connected) {
+      joinChatRef.current?.();
+    } else {
+      setStatus("connecting");
+      chatSocket.connect();
+    }
   }, [isOpen, hotelId]);
 
   useEffect(() => {
@@ -132,7 +205,12 @@ export default function HotelLiveChat({ hotelId }) {
     const text = message.trim();
     const activeConversationId = conversationIdRef.current;
 
-    if (!text || !activeConversationId || status !== "connected" || sending) {
+    if (
+      !text ||
+      !activeConversationId ||
+      status !== "connected" ||
+      sending
+    ) {
       return;
     }
 
@@ -154,7 +232,7 @@ export default function HotelLiveChat({ hotelId }) {
         }
 
         setMessage("");
-      },
+      }
     );
   };
 
@@ -212,7 +290,8 @@ export default function HotelLiveChat({ hotelId }) {
                   : item.sender;
 
               const isCustomerMessage =
-                String(senderId) === String(currentCustomerIdRef.current);
+                String(senderId) ===
+                String(currentCustomerIdRef.current);
 
               return (
                 <div
@@ -262,7 +341,9 @@ export default function HotelLiveChat({ hotelId }) {
 
             <button
               type="submit"
-              disabled={status !== "connected" || !message.trim() || sending}
+              disabled={
+                status !== "connected" || !message.trim() || sending
+              }
               className="rounded-xl bg-gray-900 px-4 py-2 text-sm font-medium text-white disabled:cursor-not-allowed disabled:opacity-50"
             >
               {sending ? "..." : "Send"}
@@ -279,6 +360,15 @@ export default function HotelLiveChat({ hotelId }) {
       >
         <span aria-hidden="true">💬</span>
         {isOpen ? "Close Chat" : "Contact Hotel"}
+
+        {!isOpen && unreadCount > 0 && (
+          <span
+            className="ml-1 inline-flex min-w-5 items-center justify-center rounded-full bg-red-500 px-1.5 py-0.5 text-xs font-bold text-white"
+            aria-label={`${unreadCount} unread messages`}
+          >
+            {unreadCount > 99 ? "99+" : unreadCount}
+          </span>
+        )}
       </button>
     </div>
   );
