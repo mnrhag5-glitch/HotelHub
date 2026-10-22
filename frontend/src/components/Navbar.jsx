@@ -63,18 +63,17 @@ export default function Navbar() {
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 py-3.5 lg:px-8">
 
         {/* Logo */}
-        <Link
-          to="/"
-          className="flex shrink-0 items-center gap-2.5 text-2xl font-bold tracking-tight text-stone-900 dark:text-white"
-        >
-          <span className="grid h-10 w-10 place-items-center rounded-xl rounded-bl-sm bg-emerald-900 font-serif text-xl text-white shadow-sm">
-            H
-          </span>
-
-          <span>
-            Hotel<span className="text-emerald-700 dark:text-emerald-400">Hub</span>
-          </span>
-        </Link>
+<Link
+  to="/"
+  className="flex shrink-0 items-center"
+  aria-label="HotelHub Home"
+>
+  <img
+    src="/hotelhub-logo.png"
+    alt="HotelHub"
+    className="h-10 w-auto object-contain"
+  />
+</Link>
 
         {/* Navigation */}
         <nav className="hidden items-center gap-8 text-sm font-medium text-stone-600 dark:text-stone-300 md:flex">
